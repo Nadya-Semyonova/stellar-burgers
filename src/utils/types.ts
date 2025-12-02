@@ -1,7 +1,7 @@
 export type TIngredient = {
   _id: string;
   name: string;
-  type: string;
+  type: 'bun' | 'main' | 'sauce';
   proteins: number;
   fat: number;
   carbohydrates: number;
@@ -10,6 +10,7 @@ export type TIngredient = {
   image: string;
   image_large: string;
   image_mobile: string;
+  __v: number;
 };
 
 export type TConstructorIngredient = TIngredient & {

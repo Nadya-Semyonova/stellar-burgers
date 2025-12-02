@@ -28,7 +28,8 @@ export const DefaultIngredientDetails: Story = {
       price: 67,
       image: '',
       image_large: '',
-      image_mobile: ''
+      image_mobile: '',
+      __v: 0
     }
   }
 };
