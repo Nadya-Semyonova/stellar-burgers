@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TOrder } from '../types';
+import { getOrdersApi } from '../../utils/burger-api';
 
 interface ProfileOrdersState {
   orders: TOrder[];
@@ -15,27 +16,7 @@ const initialState: ProfileOrdersState = {
 
 export const fetchProfileOrders = createAsyncThunk(
   'profileOrders/fetchProfileOrders',
-  async () => {
-    const accessToken = localStorage.getItem('accessToken');
-
-    if (!accessToken) {
-      throw new Error('No access token');
-    }
-
-    const response = await fetch(`${process.env.BURGER_API_URL}/orders`, {
-      headers: {
-        Authorization: accessToken
-      }
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.message || 'Failed to fetch profile orders');
-    }
-
-    return data;
-  }
+  async () => await getOrdersApi()
 );
 
 const profileOrdersSlice = createSlice({
@@ -57,7 +38,7 @@ const profileOrdersSlice = createSlice({
       })
       .addCase(fetchProfileOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload.orders;
+        state.orders = action.payload;
       })
       .addCase(fetchProfileOrders.rejected, (state, action) => {
         state.loading = false;

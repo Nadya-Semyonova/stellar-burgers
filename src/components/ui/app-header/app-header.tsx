@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import styles from './app-header.module.css';
 import { TAppHeaderUIProps } from './type';
 import {
@@ -46,9 +46,9 @@ export const AppHeaderUI: FC<TAppHeaderUIProps> = ({ userName }) => (
       </div>
 
       <div className={styles.logo}>
-        <NavLink to='/'>
+        <Link to='/'>
           <Logo className='' />
-        </NavLink>
+        </Link>
       </div>
 
       <div className={styles.link_position_last}>

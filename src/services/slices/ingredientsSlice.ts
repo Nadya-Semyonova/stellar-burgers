@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TIngredient } from '../types';
+import { getIngredientsApi } from '../../utils/burger-api';
 
 interface IngredientsState {
   items: TIngredient[];
@@ -15,14 +16,7 @@ const initialState: IngredientsState = {
 
 export const fetchIngredients = createAsyncThunk(
   'ingredients/fetchIngredients',
-  async () => {
-    const response = await fetch(`${process.env.BURGER_API_URL}/ingredients`);
-    const data = await response.json();
-    if (!data.success) {
-      throw new Error('Failed to fetch ingredients');
-    }
-    return data.data;
-  }
+  async () => await getIngredientsApi()
 );
 
 const ingredientsSlice = createSlice({

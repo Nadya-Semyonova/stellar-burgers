@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from '../../services/store';
 import { useEffect } from 'react';
-import { fetchIngredients } from '../../services/slices/ingredientsSlice';
+import { clearOrder } from '../../services/slices/orderSlice'; // Добавить импорт
 import styles from './constructor-page.module.css';
 
 import { BurgerIngredients } from '../../components';
@@ -14,8 +14,7 @@ export const ConstructorPage: FC = () => {
     useSelector((state) => state.ingredients);
 
   useEffect(() => {
-    // Загружаем ингредиенты при монтировании компонента
-    dispatch(fetchIngredients());
+    dispatch(clearOrder());
   }, [dispatch]);
 
   if (ingredientsError) {

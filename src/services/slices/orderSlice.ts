@@ -1,5 +1,7 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TOrder } from '../types';
+import { orderBurgerApi, getOrderByNumberApi } from '../../utils/burger-api';
+import { RootState } from '../store';
 
 interface OrderState {
   currentOrder: TOrder | null;
@@ -18,19 +20,20 @@ const initialState: OrderState = {
 export const createOrder = createAsyncThunk(
   'order/createOrder',
   async (ingredients: string[], { getState }) => {
-    const state = getState() as any;
-    const accessToken = localStorage.getItem('accessToken');
+    const state = getState() as RootState;
 
-    const response = await fetch(`${process.env.BURGER_API_URL}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(accessToken && { Authorization: accessToken })
-      },
-      body: JSON.stringify({ ingredients })
-    });
+    const { bun, ingredients: constructorIngredients } =
+      state.burgerConstructor;
 
-    const data = await response.json();
+    if (!bun) {
+      throw new Error('Выберите булку для заказа');
+    }
+
+    if (constructorIngredients.length === 0) {
+      throw new Error('Добавьте начинку для заказа');
+    }
+
+    const data = await orderBurgerApi(ingredients);
 
     if (!data.success) {
       throw new Error(data.message || 'Failed to create order');
@@ -43,10 +46,7 @@ export const createOrder = createAsyncThunk(
 export const getOrderByNumber = createAsyncThunk(
   'order/getOrderByNumber',
   async (orderNumber: number) => {
-    const response = await fetch(
-      `${process.env.BURGER_API_URL}/orders/${orderNumber}`
-    );
-    const data = await response.json();
+    const data = await getOrderByNumberApi(orderNumber);
 
     if (!data.success) {
       throw new Error(data.message || 'Failed to fetch order');
@@ -68,7 +68,7 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
+      // createOrder
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -82,7 +82,7 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Failed to create order';
       })
-
+      // getOrderByNumber
       .addCase(getOrderByNumber.pending, (state) => {
         state.loading = true;
         state.error = null;

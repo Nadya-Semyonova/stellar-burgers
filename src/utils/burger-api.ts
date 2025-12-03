@@ -8,6 +8,7 @@ const checkResponse = <T>(res: Response): Promise<T> =>
 
 type TServerResponse<T> = {
   success: boolean;
+  message?: string;
 } & T;
 
 type TRefreshResponse = TServerResponse<{
@@ -15,6 +16,10 @@ type TRefreshResponse = TServerResponse<{
   accessToken: string;
 }>;
 
+const getAuthHeader = () => {
+  const token = getCookie('accessToken');
+  return token ? `Bearer ${token}` : '';
+};
 export const refreshToken = (): Promise<TRefreshResponse> =>
   fetch(`${URL}/auth/token`, {
     method: 'POST',
@@ -45,11 +50,17 @@ export const fetchWithRefresh = async <T>(
   } catch (err) {
     if ((err as { message: string }).message === 'jwt expired') {
       const refreshData = await refreshToken();
-      if (options.headers) {
-        (options.headers as { [key: string]: string }).authorization =
-          refreshData.accessToken;
-      }
-      const res = await fetch(url, options);
+
+      const newOptions = {
+        ...options,
+        headers: {
+          ...options.headers,
+          'Content-Type': 'application/json;charset=utf-8',
+          authorization: getAuthHeader()
+        } as HeadersInit
+      };
+
+      const res = await fetch(url, newOptions);
       return await checkResponse<T>(res);
     } else {
       return Promise.reject(err);
@@ -65,10 +76,6 @@ type TFeedsResponse = TServerResponse<{
   orders: TOrder[];
   total: number;
   totalToday: number;
-}>;
-
-type TOrdersResponse = TServerResponse<{
-  data: TOrder[];
 }>;
 
 export const getIngredientsApi = () =>
@@ -92,7 +99,7 @@ export const getOrdersApi = () =>
     method: 'GET',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
+      authorization: getAuthHeader() // Используем новую функцию
     } as HeadersInit
   }).then((data) => {
     if (data?.success) return data.orders;
@@ -109,7 +116,7 @@ export const orderBurgerApi = (data: string[]) =>
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
+      authorization: getAuthHeader()
     } as HeadersInit,
     body: JSON.stringify({
       ingredients: data
@@ -209,7 +216,7 @@ type TUserResponse = TServerResponse<{ user: TUser }>;
 export const getUserApi = () =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
     headers: {
-      authorization: getCookie('accessToken')
+      authorization: getAuthHeader() // Используем новую функцию
     } as HeadersInit
   });
 
@@ -218,7 +225,7 @@ export const updateUserApi = (user: Partial<TRegisterData>) =>
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
-      authorization: getCookie('accessToken')
+      authorization: getAuthHeader() // Используем новую функцию
     } as HeadersInit,
     body: JSON.stringify(user)
   });

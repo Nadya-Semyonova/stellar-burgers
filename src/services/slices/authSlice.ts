@@ -1,5 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { TUser, TAuthResponse } from '../types';
+import { TUser, TAuthResponse } from '@utils-types';
+import {
+  loginUserApi,
+  registerUserApi,
+  getUserApi,
+  updateUserApi,
+  logoutApi
+} from '../../utils/burger-api';
+import { setCookie, deleteCookie } from '../../utils/cookie';
 
 interface AuthState {
   user: TUser | null;
@@ -19,16 +27,16 @@ const initialState: AuthState = {
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }) => {
-    const response = await fetch(`${process.env.BURGER_API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    });
-    const data: TAuthResponse = await response.json();
-    if (!data.success) throw new Error(data.message || 'Login failed');
+    const data = await loginUserApi(credentials);
 
-    localStorage.setItem('accessToken', data.accessToken);
+    if (!data.success) {
+      throw new Error(data.message || 'Login failed');
+    }
+
     localStorage.setItem('refreshToken', data.refreshToken);
+
+    const accessToken = data.accessToken.replace('Bearer ', '');
+    setCookie('accessToken', accessToken);
     return data;
   }
 );
@@ -37,57 +45,45 @@ export const loginUser = createAsyncThunk(
 export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData: { email: string; password: string; name: string }) => {
-    const response = await fetch(
-      `${process.env.BURGER_API_URL}/auth/register`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      }
-    );
-    const data = await response.json();
+    const data = await registerUserApi(userData);
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Ошибка при регистрации');
+    if (!data.success) {
+      throw new Error(data.message || 'Registration failed');
     }
 
-    localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
+    const accessToken = data.accessToken.replace('Bearer ', '');
+    setCookie('accessToken', accessToken);
     return data;
   }
 );
 
 // Получение данных пользователя
 export const getUser = createAsyncThunk('auth/getUser', async () => {
-  const accessToken = localStorage.getItem('accessToken');
-  if (!accessToken) throw new Error('No token');
+  try {
+    const data = await getUserApi();
 
-  const response = await fetch(`${process.env.BURGER_API_URL}/auth/user`, {
-    headers: { Authorization: accessToken }
-  });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.message || 'Failed to get user');
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to get user');
+    }
 
-  return data;
+    return data;
+  } catch (error) {
+    localStorage.removeItem('refreshToken');
+    deleteCookie('accessToken');
+    throw error;
+  }
 });
 
 // Обновление данных пользователя
 export const updateUser = createAsyncThunk(
   'auth/updateUser',
   async (userData: { email: string; name: string; password?: string }) => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) throw new Error('No token');
+    const data = await updateUserApi(userData);
 
-    const response = await fetch(`${process.env.BURGER_API_URL}/auth/user`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: accessToken
-      },
-      body: JSON.stringify(userData)
-    });
-    const data = await response.json();
-    if (!data.success) throw new Error(data.message || 'Failed to update user');
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to update user');
+    }
 
     return data;
   }
@@ -95,14 +91,18 @@ export const updateUser = createAsyncThunk(
 
 // Выход
 export const logoutUser = createAsyncThunk('auth/logout', async () => {
-  const refreshToken = localStorage.getItem('refreshToken');
-  await fetch(`${process.env.BURGER_API_URL}/auth/logout`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: refreshToken })
-  });
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
+  try {
+    const data = await logoutApi();
+
+    localStorage.removeItem('refreshToken');
+    deleteCookie('accessToken');
+
+    return data;
+  } catch (error) {
+    localStorage.removeItem('refreshToken');
+    deleteCookie('accessToken');
+    throw error;
+  }
 });
 
 const authSlice = createSlice({
@@ -115,7 +115,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -129,7 +128,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Login failed';
       })
-
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -143,7 +141,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Registration failed';
       })
-
       .addCase(getUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.isAuthenticated = true;
@@ -151,15 +148,15 @@ const authSlice = createSlice({
       .addCase(getUser.rejected, (state) => {
         state.isAuthenticated = false;
         state.user = null;
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
       })
-
       .addCase(updateUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
       })
-
       .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logoutUser.rejected, (state) => {
         state.user = null;
         state.isAuthenticated = false;
       });

@@ -16,7 +16,9 @@ import '../../index.css';
 import styles from './app.module.css';
 import { useEffect } from 'react';
 import { getUser } from '../../services/slices/authSlice';
+import { fetchIngredients } from '../../services/slices/ingredientsSlice';
 import { useDispatch } from '../../services/store';
+import { getCookie } from '../../utils/cookie';
 
 const App = () => {
   const location = useLocation();
@@ -27,12 +29,14 @@ const App = () => {
   const handleModalClose = () => {
     navigate(-1);
   };
-  // При загрузке приложения проверяем авторизацию
+
   useEffect(() => {
-    if (localStorage.getItem('accessToken')) {
+    if (localStorage.getItem('refreshToken') || getCookie('accessToken')) {
       dispatch(getUser());
     }
+    dispatch(fetchIngredients());
   }, [dispatch]);
+
   return (
     <div className={styles.app}>
       <AppHeader />

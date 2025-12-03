@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from '../../services/store';
 import { Preloader } from '../ui/preloader';
 import { OrderInfoUI } from '../ui/order-info';
 import { TIngredient } from '@utils-types';
-import { getOrderByNumber } from '../../services/slices/orderSlice';
+import { getOrderByNumber, clearOrder } from '../../services/slices/orderSlice';
 
 export const OrderInfo: FC = () => {
   const dispatch = useDispatch();
@@ -17,12 +17,15 @@ export const OrderInfo: FC = () => {
   );
   const ingredients = useSelector((state) => state.ingredients.items);
 
-  // Загружаем данные заказа по номеру, если его нет в store
   useEffect(() => {
-    if (number && !orderData) {
+    if (number) {
       dispatch(getOrderByNumber(Number(number)));
     }
-  }, [dispatch, number, orderData]);
+
+    return () => {
+      dispatch(clearOrder());
+    };
+  }, [dispatch, number]);
 
   /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {

@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { FC, ReactElement, useEffect } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
 import { getUser } from '../../services/slices/authSlice';
+import { getCookie } from '../../utils/cookie';
 
 interface ProtectedRouteProps {
   children: ReactElement;
@@ -17,8 +18,10 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
   const { isAuthenticated, user } = useSelector((store) => store.auth);
 
   useEffect(() => {
-    // Если есть токен но нет данных пользователя - запрашиваем данные
-    if (localStorage.getItem('accessToken') && !user) {
+    if (
+      (localStorage.getItem('accessToken') || getCookie('accessToken')) &&
+      !user
+    ) {
       dispatch(getUser());
     }
   }, [dispatch, user]);

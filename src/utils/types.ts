@@ -19,7 +19,7 @@ export type TConstructorIngredient = TIngredient & {
 
 export type TOrder = {
   _id: string;
-  status: string;
+  status: 'created' | 'pending' | 'done';
   name: string;
   createdAt: string;
   updatedAt: string;
@@ -39,3 +39,23 @@ export type TUser = {
 };
 
 export type TTabMode = 'bun' | 'sauce' | 'main';
+
+export interface TAuthResponse {
+  message: string;
+  success: boolean;
+  accessToken: string;
+  refreshToken: string;
+  user: TUser;
+}
+
+export interface TFeedResponse {
+  success: boolean;
+  orders: TOrder[];
+  total: number;
+  totalToday: number;
+}
+
+export interface TProfileOrdersResponse {
+  success: boolean;
+  orders: TOrder[];
+}

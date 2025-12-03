@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { TOrder } from '../types';
+import { getFeedsApi } from '../../utils/burger-api';
 
 interface FeedState {
   orders: TOrder[];
@@ -20,8 +21,7 @@ const initialState: FeedState = {
 export const fetchFeedOrders = createAsyncThunk(
   'feed/fetchFeedOrders',
   async () => {
-    const response = await fetch(`${process.env.BURGER_API_URL}/orders/all`);
-    const data = await response.json();
+    const data = await getFeedsApi();
 
     if (!data.success) {
       throw new Error(data.message || 'Failed to fetch feed orders');
