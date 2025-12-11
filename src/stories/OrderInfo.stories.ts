@@ -31,7 +31,8 @@ export const DefaultOrderInfo: Story = {
           image: '',
           image_large: '',
           image_mobile: '',
-          count: 2
+          count: 2,
+          __v: 0
         }
       },
       date: new Date('2024-01-25'),

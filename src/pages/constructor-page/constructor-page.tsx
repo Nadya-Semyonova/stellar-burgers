@@ -1,5 +1,6 @@
-import { useSelector } from '../../services/store';
-
+import { useSelector, useDispatch } from '../../services/store';
+import { useEffect } from 'react';
+import { clearOrder } from '../../services/slices/orderSlice'; // Добавить импорт
 import styles from './constructor-page.module.css';
 
 import { BurgerIngredients } from '../../components';
@@ -8,8 +9,26 @@ import { Preloader } from '../../components/ui';
 import { FC } from 'react';
 
 export const ConstructorPage: FC = () => {
-  /** TODO: взять переменную из стора */
-  const isIngredientsLoading = false;
+  const dispatch = useDispatch();
+  const { loading: isIngredientsLoading, error: ingredientsError } =
+    useSelector((state) => state.ingredients);
+
+  useEffect(() => {
+    dispatch(clearOrder());
+  }, [dispatch]);
+
+  if (ingredientsError) {
+    return (
+      <main className={styles.containerMain}>
+        <h1
+          className={`${styles.title} text text_type_main-large mt-10 mb-5 pl-5`}
+        >
+          Ошибка загрузки ингредиентов
+        </h1>
+        <p className='text text_type_main-default pl-5'>{ingredientsError}</p>
+      </main>
+    );
+  }
 
   return (
     <>

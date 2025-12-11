@@ -1,10 +1,26 @@
 import { ProfileOrdersUI } from '@ui-pages';
-import { TOrder } from '@utils-types';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
+import { fetchProfileOrders } from '../../services/slices/profileOrdersSlice';
+import { logoutUser } from '../../services/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const ProfileOrders: FC = () => {
-  /** TODO: взять переменную из стора */
-  const orders: TOrder[] = [];
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { orders, loading, error } = useSelector(
+    (state) => state.profileOrders
+  );
 
-  return <ProfileOrdersUI orders={orders} />;
+  // Загружаем заказы пользователя при монтировании компонента
+  useEffect(() => {
+    dispatch(fetchProfileOrders());
+  }, [dispatch]);
+  // Функция для выхода из аккаунта
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    navigate('/login');
+  };
+
+  return <ProfileOrdersUI orders={orders} onLogout={handleLogout} />;
 };

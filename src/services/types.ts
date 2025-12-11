@@ -1,4 +1,4 @@
-export type TIngredient = {
+export interface TIngredient {
   _id: string;
   name: string;
   type: 'bun' | 'main' | 'sauce';
@@ -8,37 +8,25 @@ export type TIngredient = {
   calories: number;
   price: number;
   image: string;
-  image_large: string;
   image_mobile: string;
+  image_large: string;
   __v: number;
-};
+}
 
-export type TConstructorIngredient = TIngredient & {
-  id: string;
-};
-
-export type TOrder = {
+export interface TOrder {
   _id: string;
+  ingredients: string[];
   status: 'created' | 'pending' | 'done';
   name: string;
   createdAt: string;
   updatedAt: string;
   number: number;
-  ingredients: string[];
-};
+}
 
-export type TOrdersData = {
-  orders: TOrder[];
-  total: number;
-  totalToday: number;
-};
-
-export type TUser = {
+export interface TUser {
   email: string;
   name: string;
-};
-
-export type TTabMode = 'bun' | 'sauce' | 'main';
+}
 
 export interface TAuthResponse {
   message: string;
@@ -47,7 +35,6 @@ export interface TAuthResponse {
   refreshToken: string;
   user: TUser;
 }
-
 export interface TFeedResponse {
   success: boolean;
   orders: TOrder[];
