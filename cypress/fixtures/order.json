@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "name": "Био-марсианский флюоресцентный бургер",
+  "order": {
+    "ingredients": [
+      {
+        "_id": "60666c42cc7b410027a1a9b2",
+        "name": "Флюоресцентная булка R2-D3",
+        "type": "bun"
+      },
+      {
+        "_id": "60666c42cc7b410027a1a9b7",
+        "name": "Соус Spicy-X",
+        "type": "sauce"
+      }
+    ],
+    "_id": "693af742a64177001b32330a",
+    "owner": {
+      "name": "TestUser",
+      "email": "test@mail.ru",
+      "createdAt": "2025-12-01T01:05:59.365Z",
+      "updatedAt": "2025-12-03T20:21:05.896Z"
+    },
+    "status": "done",
+    "name": "Био-марсианский флюоресцентный бургер",
+    "createdAt": "2025-12-11T16:54:26.285Z",
+    "updatedAt": "2025-12-11T16:54:26.501Z",
+    "number": 96969,
+    "price": 2400
+  }
+}
+    

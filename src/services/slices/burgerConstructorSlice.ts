@@ -13,7 +13,7 @@ interface BurgerConstructorState {
   totalPrice: number;
 }
 
-const initialState: BurgerConstructorState = {
+export const initialState: BurgerConstructorState = {
   bun: null,
   ingredients: [],
   totalPrice: 0
