@@ -5,6 +5,7 @@ import burgerConstructorReducer, {
   moveIngredient,
   clearConstructor
 } from './burgerConstructorSlice';
+import { initialState } from './burgerConstructorSlice';
 import { TIngredient } from '../types';
 
 // Мокаем uuid
@@ -47,12 +48,6 @@ const mockIngredient: TIngredient = {
 };
 
 describe('burgerConstructor reducer', () => {
-  const initialState = {
-    bun: null,
-    ingredients: [],
-    totalPrice: 0
-  };
-
   beforeEach(() => {
     // Очищаем моки перед каждым тестом
     jest.clearAllMocks();

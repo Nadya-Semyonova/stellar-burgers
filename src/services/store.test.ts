@@ -12,21 +12,45 @@ describe('rootReducer initialization', () => {
     expect(state).toHaveProperty('profileOrders');
   });
 
-  test('burgerConstructor should have correct initial state', () => {
-    const state = store.getState().burgerConstructor;
+  test('auth should have correct initial state', () => {
+    const state = store.getState().auth;
 
     expect(state).toEqual({
-      bun: null,
-      ingredients: [],
-      totalPrice: 0
+      user: null,
+      isAuthenticated: false,
+      loading: false,
+      error: null
     });
   });
 
-  test('ingredients should have correct initial state', () => {
-    const state = store.getState().ingredients;
+  test('order should have correct initial state', () => {
+    const state = store.getState().order;
 
     expect(state).toEqual({
-      items: [],
+      currentOrder: null,
+      orderNumber: null,
+      loading: false,
+      error: null
+    });
+  });
+
+  test('feed should have correct initial state', () => {
+    const state = store.getState().feed;
+
+    expect(state).toEqual({
+      orders: [],
+      total: 0,
+      totalToday: 0,
+      loading: false,
+      error: null
+    });
+  });
+
+  test('profileOrders should have correct initial state', () => {
+    const state = store.getState().profileOrders;
+
+    expect(state).toEqual({
+      orders: [],
       loading: false,
       error: null
     });
